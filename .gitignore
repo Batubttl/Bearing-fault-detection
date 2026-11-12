@@ -1,0 +1,15 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+# Data (download separately, too large for git)
+data/
+
+# Jupyter
+.ipynb_checkpoints/
