@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read   # least privilege: CI only needs to read the code
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install runtime + test dependencies (no torch)
+        run: uv sync --frozen --no-default-groups --group dev
+      - name: Run tests
+        run: uv run --no-sync pytest -v
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t bearing-api .
+      - name: Smoke test (start container, call /health and /predict)
+        run: |
+          docker run -d --name api -p 8000:8000 bearing-api
+          for i in $(seq 1 20); do curl -sf http://127.0.0.1:8000/health && break; sleep 1; done
+          curl -sf -X POST http://127.0.0.1:8000/predict \
+            -H "Content-Type: application/json" -d @samples/ball.json
