@@ -5,16 +5,14 @@ import numpy as np
 import onnxruntime as ort
 
 from .cwru import CLASS_NAMES
+from .preprocessing import WINDOW_SIZE, normalize
 
-WINDOW_SIZE = 2048
 DEFAULT_MODEL_PATH = Path(__file__).resolve().parents[2] / "models" / "cnn.onnx"
 
 
 def preprocess(window) -> np.ndarray:
-    """Same per-window normalization as in training -> shape (1, 1, WINDOW_SIZE)."""
-    x = np.asarray(window, dtype=np.float32)
-    x = (x - x.mean()) / (x.std() + 1e-8)
-    return x.reshape(1, 1, -1)
+    """Same normalization as in training -> shape (1, 1, WINDOW_SIZE)."""
+    return normalize(window).reshape(1, 1, -1)
 
 
 class BearingClassifier:

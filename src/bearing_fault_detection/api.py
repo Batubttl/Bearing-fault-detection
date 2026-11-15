@@ -1,7 +1,7 @@
 """REST API: POST a 2048-sample vibration window, get the predicted bearing condition."""
 from contextlib import asynccontextmanager
 from typing import Annotated
-
+from fastapi.exceptions import RequestValidationError
 import numpy as np
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -38,6 +38,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Bearing Fault Detection API", version="0.1.0", lifespan=lifespan)
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(request: Request, exc: RequestValidationError):
+    # Don't echo the input back: it can be huge, and NaN/inf can't be encoded as JSON
+    errors = [{"loc": e["loc"], "msg": e["msg"], "type": e["type"]} for e in exc.errors()]
+    return JSONResponse(status_code=422, content={"detail": errors})
 
 
 @app.middleware("http")
