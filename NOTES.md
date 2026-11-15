@@ -41,3 +41,59 @@
   - OR 0.014" predicted as Normal: its envelope spectrum has no BPFO peak
     → consistent with Smith & Randall (2015): records 198-200 not/only partly diagnosable
 - Next: Step 4 – 1D-CNN in PyTorch on raw windows, same fault-size split
+## Session 4 – 2026-11-15
+- Convolution = sliding a learnable filter over the signal (toy demo: [-1, 2, -1] click detector)
+- Data: per-window z-normalization → removes absolute amplitude (which depends on fault size),
+  forces the model to use shape/rhythm. Tensors shaped (N, 1, 2048)
+- Model: BearingCNN, 4 Conv1d blocks (wide first kernel 64, stride 8) + global avg pool + linear, 21,780 params (~85 KB)
+- Training: Adam lr=1e-3, CrossEntropy, 15 epochs fixed in advance (not tuned on test);
+  val = random 20% of train (same bearings → optimistic, only a sanity check)
+- Train/val acc 100% from epoch 2
+- Test (unseen 0.014" bearings): macro-F1 0.502 vs RF time+envelope 0.485
+  - Ball: 236/236 (first time), Outer race: 0/236 (no BPFO signature in data), IR often → Outer
+  - Single run → difference is NOT significant yet
+- Saved weights: models/cnn.pt (state_dict, gitignored)
+- Next: Step 5 – 5 seeds per model (mean ± std), leave-one-fault-size-out (3 folds), plots for README
+## Session 5 – 2026-11-15
+- Leave-one-fault-size-out CV: 3 folds (0.007/0.014/0.021 held out) x 5 seeds x 2 models = 30 runs
+- Macro-F1 (mean): RF time+envelope 0.739, 1D-CNN 0.545
+  - 0.007: RF 1.000±0.000 vs CNN 0.736±0.072
+  - 0.014: RF 0.492±0.025 vs CNN 0.481±0.046   ← the only fold I had looked at before
+  - 0.021: RF 0.726±0.052 vs CNN 0.418±0.002   (CNN fails the same way every seed)
+- Per-class recall: CNN dumps uncertain windows into "Ball" (high Ball recall, low precision)
+- Lesson: single split → wrong conclusion ("CNN ≈ RF"); with little data (2 bearings/class),
+  physics-based features generalize better than a small CNN
+- Saved: results/fault_size_cv.csv, figures/macro_f1_by_fold.png, figures/recall_per_class.png
+- Drafted README "Results" section (key findings + limitations)
+- Next: Step 6 – export CNN to ONNX, measure CPU inference time
+## Results
+
+**Protocol.** Leave-one-fault-size-out cross-validation (0.007" / 0.014" / 0.021"):
+the test fold contains only physical bearings never seen in training. Each model is
+trained with 5 random seeds; we report mean ± std. Metric: macro-F1 (classes weighted equally).
+
+| Held-out fault size | RF (time + envelope features) | 1D-CNN (raw signal) |
+|---|---|---|
+| 0.007" | **1.000 ± 0.000** | 0.736 ± 0.072 |
+| 0.014" | 0.492 ± 0.025 | 0.481 ± 0.046 |
+| 0.021" | **0.726 ± 0.052** | 0.418 ± 0.002 |
+| **Mean** | **0.739** | 0.545 |
+
+![Macro-F1 by fold](figures/macro_f1_by_fold.png)
+![Per-class recall](figures/recall_per_class.png)
+
+**Key findings**
+- **Naive splits are misleading.** Random window splits and cross-load splits both give
+  100% accuracy, because CWRU reuses the same physical bearing across recordings and loads.
+- **Domain knowledge wins with little data.** With only two training bearings per fault type,
+  physics-based envelope features (energy at the theoretical BPFI / BSF / BPFO frequencies)
+  generalize better than a small CNN learning from raw signals.
+- **A single test split would have misled me.** On the 0.014" fold alone, CNN and RF looked equal.
+- **Some failures are data problems.** The 0.014" outer-race recordings show no BPFO peak in
+  the envelope spectrum, consistent with Smith & Randall (2015), who could not diagnose them either.
+
+**Limitations**
+- CWRU has only one healthy bearing, so the Normal class always shares a bearing between
+  train and test (its 100% recall is optimistic).
+- Small dataset: 2 training bearings per fault type per fold.
+- Laboratory test rig with artificially seeded faults; real-world performance is untested.
