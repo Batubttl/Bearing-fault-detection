@@ -15,3 +15,13 @@
   - IR / OR: periodic impulses (OR ≈ every 9 ms ≈ 107 Hz)
   - Ball: hard to distinguish from Normal by eye → expect the model to struggle here
 - Next: Step 2 – windowing + leakage-free train/test split
+## Session 2 – 2026-11-15
+- Wrote make_windows(signal, window_size, step) using slicing
+- Window = 2048 samples (~0.17 s, ~5 shaft rotations), step = 2048 (no overlap)
+- Leakage-free split: split each recording by time FIRST (80% train / 20% test), THEN window
+  - Why: windowing + random shuffle puts near-identical/overlapping windows in both sets → inflated scores
+  - Limitation: train/test still come from the same recording → later test on unseen motor load
+- Result: X_train (236, 2048), X_test (56, 2048), labels 0=Normal 1=IR 2=Ball 3=OR
+- Class imbalance: train [95 47 47 47] → Normal recording is 2x longer (explains bigger 97.mat)
+  → don't rely on accuracy alone; use confusion matrix / per-class metrics
+- Next: Step 3 – hand-crafted features (RMS, kurtosis, FFT) + Random Forest baseline
