@@ -66,17 +66,11 @@ wheels = [
 name = "bearing-fault-detection"
 version = "0.1.0"
 source = { editable = "." }
+default-groups = ["dev", "train"]
 dependencies = [
     { name = "fastapi" },
-    { name = "matplotlib" },
     { name = "numpy" },
-    { name = "onnx" },
     { name = "onnxruntime" },
-    { name = "onnxscript" },
-    { name = "pandas" },
-    { name = "scikit-learn" },
-    { name = "scipy" },
-    { name = "torch" },
     { name = "uvicorn" },
 ]
 
@@ -86,19 +80,21 @@ dev = [
     { name = "ipykernel" },
     { name = "pytest" },
 ]
+train = [
+    { name = "matplotlib" },
+    { name = "onnx" },
+    { name = "onnxscript" },
+    { name = "pandas" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "torch" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.163.1" },
-    { name = "matplotlib", specifier = ">=3.11.2" },
     { name = "numpy", specifier = ">=2.5.4" },
-    { name = "onnx", specifier = ">=1.23.2" },
     { name = "onnxruntime", specifier = ">=1.32.0" },
-    { name = "onnxscript", specifier = ">=0.7.2" },
-    { name = "pandas", specifier = ">=3.1.1" },
-    { name = "scikit-learn", specifier = ">=1.9.1" },
-    { name = "scipy", specifier = ">=1.18.1" },
-    { name = "torch", specifier = ">=2.15.0" },
     { name = "uvicorn", specifier = ">=0.54.0" },
 ]
 
@@ -107,6 +103,15 @@ dev = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "ipykernel", specifier = ">=7.4.0" },
     { name = "pytest", specifier = ">=9.2.0" },
+]
+train = [
+    { name = "matplotlib", specifier = ">=3.11.2" },
+    { name = "onnx", specifier = ">=1.23.2" },
+    { name = "onnxscript", specifier = ">=0.7.2" },
+    { name = "pandas", specifier = ">=3.1.1" },
+    { name = "scikit-learn", specifier = ">=1.9.1" },
+    { name = "scipy", specifier = ">=1.18.1" },
+    { name = "torch", specifier = ">=2.15.0" },
 ]
 
 [[package]]
@@ -343,10 +348,10 @@ wheels = [
 
 [[package]]
 name = "cuda-pathfinder"
-version = "1.8.6"
+version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6a/9e/08555797c979322def080814686417ea93f66d38f5c48ebab6867a85a21e/cuda_pathfinder-1.8.6-py3-none-any.whl", hash = "sha256:bf6b3b06323cf95a11d671818392da5da23ddbbb4dfc4b77ca10622783c25980", size = 62603, upload-time = "2026-11-05T21:22:51.229Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/80/7cf8bbe4a8844198fa64481ffc6642003770999b9ead27e99fc03484989a/cuda_pathfinder-1.9.0-py3-none-any.whl", hash = "sha256:622df7440f7702f36b7a02a1699aa0b084fe04034d9939188fee9b16d0c36366", size = 63362, upload-time = "2026-11-13T17:02:04.522Z" },
 ]
 
 [[package]]

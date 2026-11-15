@@ -1,4 +1,5 @@
 """Load the ONNX model and classify one vibration window."""
+import os
 from pathlib import Path
 
 import numpy as np
@@ -6,8 +7,9 @@ import onnxruntime as ort
 
 from .cwru import CLASS_NAMES
 from .preprocessing import WINDOW_SIZE, normalize
-
-DEFAULT_MODEL_PATH = Path(__file__).resolve().parents[2] / "models" / "cnn.onnx"
+DEFAULT_MODEL_PATH = Path(
+    os.environ.get("MODEL_PATH", Path(__file__).resolve().parents[2] / "models" / "cnn.onnx")
+)
 
 
 def preprocess(window) -> np.ndarray:
